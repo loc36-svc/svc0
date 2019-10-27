@@ -8,23 +8,23 @@ http_server:
 # sds-related data
 sds:
   addr: "0.0.0.0"  # Valid ipv4, ipv6, or domain name.
-  port: 0          # Valid port.
+  port: 0          # Valid port. Port 0 not allowed.
   pub_key_file: "" # Valid filepath of SDS pub key file. Relative or absolute.
   username: ""     # Username of account for updating service addr.
   pass: ""         # Password of account.
-  conn_timeout: 0  # Timeout for connection to SDS.
-  write_timeout: 0 # Timeout for writing to SDS.
-  read_timeout: 0  # Timeout for reading from SDS.
+  conn_timeout: 0  # Timeout for connection to SDS. Value would be treated as second.
+  write_timeout: 0 # Timeout for writing to SDS. Value would be treated as second.
+  read_timeout: 0  # Timeout for reading from SDS. Value would be treated as second.
   service_id: ""   # Service ID.
   update_pass: ""  # Password for updating service record.
 
 # dbms-related data
 dbms:
   addr: "0.0.0.0"  # Valid ipv4, ipv6, or domain name.
-  port: 0          # Valid port.
+  port: 0          # Valid port. Port 0 not allowed.
   pub_key_file: "" # Valid filepath of DBMS pub key file. Relative or absolute.
   username: ""     # Username of account for using the DBMS.
   pass: ""         # Passowrd of account.
-  conn_timeout: 0  # Timeout for connection to SDS.
-  write_timeout: 0 # Timeout for writing to SDS.
-  read_timeout: 0  # Timeout for reading from SDS.
+  conn_timeout: 0  # Timeout for connection to SDS. Value would be treated as second.
+  write_timeout: 0 # Timeout for writing to SDS. Value would be treated as second.
+  read_timeout: 0  # Timeout for reading from SDS. Value would be treated as second.
