@@ -36,11 +36,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'http_server.port': Data not set.", nil, nil)
 	}
 	(*output) ["http_server.port"] = conf.GetString ("http_server.port")
-	portX, okX := strconv.Atoi ((*output) ["http_server.port"])
-	if okX != nil || portX > 65535 {
+	portA, okA := strconv.Atoi ((*output) ["http_server.port"])
+	if okA != nil || portA > 65535 {
 		return nil, err.New ("Conf data 'http_server.port': Invalid port number.", nil, nil)
 	}
-	if portX == 0 {
+	if portA == 0 {
 		return nil, err.New ("Conf data 'http_server.port': Port 0 can not be used.", nil, nil)
 	}
 	// .. }
@@ -50,10 +50,10 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'http_server.tls_key': Data not set.", nil, nil)
 	}
 	(*output) ["http_server.tls_key"] = conf.GetString ("http_server.tls_key")
-	okR, errR := afero.Exists (afero.NewOsFs (), (*output) ["http_server.tls_key"])
-	if errR != nil {
+	okB, errB := afero.Exists (afero.NewOsFs (), (*output) ["http_server.tls_key"])
+	if errB != nil {
 		return nil, err.New ("Conf data 'http_server.tls_key': Unable to confirm existence of file.", nil, nil)
-	} else if okR == false {
+	} else if okB == false {
 		return nil, err.New ("Conf data 'http_server.tls_key': File not found.", nil, nil)
 	}
 	// .. }
@@ -63,10 +63,10 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'http_server.tls_crt': Data not set.", nil, nil)
 	}
 	(*output) ["http_server.tls_crt"] = conf.GetString ("http_server.tls_crt")
-	okS, errS := afero.Exists (afero.NewOsFs (), (*output) ["http_server.tls_crt"])
-	if errS != nil {
+	okC, errC := afero.Exists (afero.NewOsFs (), (*output) ["http_server.tls_crt"])
+	if errC != nil {
 		return nil, err.New ("Conf data 'http_server.tls_crt': Unable to confirm existence of file.", nil, nil)
-	} else if okS == false {
+	} else if okC == false {
 		return nil, err.New ("Conf data 'http_server.tls_crt': File not found.", nil, nil)
 	}
 	// .. }
@@ -89,11 +89,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'sds.port': Data not set.", nil, nil)
 	}
 	(*output) ["sds.port"] = conf.GetString ("sds.port")
-	portX, okX := strconv.Atoi ((*output) ["sds.port"])
-	if okX != nil || portX > 65535 {
+	portD, okD := strconv.Atoi ((*output) ["sds.port"])
+	if okD != nil || portD > 65535 {
 		return nil, err.New ("Conf data 'sds.port': Invalid port number.", nil, nil)
 	}
-	if portX == 0 {
+	if portD == 0 {
 		return nil, err.New ("Conf data 'sds.port': Port 0 can not be used.", nil, nil)
 	}
 	// .. }
@@ -103,10 +103,10 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'sds.pub_key_file': Data not set.", nil, nil)
 	}
 	(*output) ["sds.pub_key_file"] = conf.GetString ("sds.pub_key_file")
-	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["sds.pub_key_file"])
-	if  errK != nil {
+	okE, errE := afero.Exists (afero.NewOsFs (), (*output) ["sds.pub_key_file"])
+	if errE != nil {
 		return nil, err.New ("Conf data 'sds.pub_key_file': Unable to confirm existence of file.", nil, nil)
-	} else if okK == false {
+	} else if okE == false {
 		return nil, err.New ("Conf data 'sds.pub_key_file': File not found.", nil, nil)
 	}
 	// .. }
@@ -130,11 +130,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'sds.conn_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["sds.conn_timeout"] = conf.GetString ("sds.conn_timeout")
-	timeoutA, errA := strconv.Atoi ((*output) ["sds.conn_timeout"])
-	if errA != nil {
-		return nil, err.New ("Conf data 'sds.conn_timeout': Value seems invalid.", nil, nil, errA)
+	timeoutF, errF := strconv.Atoi ((*output) ["sds.conn_timeout"])
+	if errF != nil {
+		return nil, err.New ("Conf data 'sds.conn_timeout': Value seems invalid.", nil, nil, errF)
 	}
-	if timeoutA == 0 {
+	if timeoutF == 0 {
 		return nil, err.New ("Conf data 'sds.conn_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
@@ -144,11 +144,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'sds.write_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["sds.write_timeout"] = conf.GetString ("sds.write_timeout")
-	timeoutB, errB := strconv.Atoi ((*output) ["sds.write_timeout"])
-	if errB != nil {
-		return nil, err.New ("Conf data 'sds.write_timeout': Value seems invalid.", nil, nil, errB)
+	timeoutG, errG := strconv.Atoi ((*output) ["sds.write_timeout"])
+	if errG != nil {
+		return nil, err.New ("Conf data 'sds.write_timeout': Value seems invalid.", nil, nil, errG)
 	}
-	if timeoutB == 0 {
+	if timeoutG == 0 {
 		return nil, err.New ("Conf data 'sds.write_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
@@ -158,11 +158,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'sds.read_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["sds.read_timeout"] = conf.GetString ("sds.read_timeout")
-	timeoutC, errC := strconv.Atoi ((*output) ["sds.read_timeout"])
-	if errC != nil {
-		return nil, err.New ("Conf data 'sds.read_timeout': Value seems invalid.", nil, nil, errC)
+	timeoutH, errH := strconv.Atoi ((*output) ["sds.read_timeout"])
+	if errH != nil {
+		return nil, err.New ("Conf data 'sds.read_timeout': Value seems invalid.", nil, nil, errH)
 	}
-	if timeoutC == 0 {
+	if timeoutH == 0 {
 		return nil, err.New ("Conf data 'sds.read_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
@@ -205,11 +205,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'dbms.port': Data not set.", nil, nil)
 	}
 	(*output) ["dbms.port"] = conf.GetString ("dbms.port")
-	portX, okX := strconv.Atoi ((*output) ["dbms.port"])
-	if okX != nil || portX > 65535 {
+	portI, okI := strconv.Atoi ((*output) ["dbms.port"])
+	if okI != nil || portI > 65535 {
 		return nil, err.New ("Conf data 'dbms.port': Invalid port number.", nil, nil)
 	}
-	if portX == 0 {
+	if portI == 0 {
 		return nil, err.New ("Conf data 'dbms.port': Port 0 can not be used.", nil, nil)
 	}
 	// .. }
@@ -219,10 +219,10 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'dbms.pub_key_file': Data not set.", nil, nil)
 	}
 	(*output) ["dbms.pub_key_file"] = conf.GetString ("dbms.pub_key_file")
-	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["dbms.pub_key_file"])
-	if  errK != nil {
+	okJ, errJ := afero.Exists (afero.NewOsFs (), (*output) ["dbms.pub_key_file"])
+	if errJ != nil {
 		return nil, err.New ("Conf data 'dbms.pub_key_file': Unable to confirm existence of file.", nil, nil)
-	} else if okK == false {
+	} else if okJ == false {
 		return nil, err.New ("Conf data 'dbms.pub_key_file': File not found.", nil, nil)
 	}
 	// .. }
@@ -246,11 +246,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'dbms.conn_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["dbms.conn_timeout"] = conf.GetString ("dbms.conn_timeout")
-	timeoutA, errA := strconv.Atoi ((*output) ["dbms.conn_timeout"])
-	if errA != nil {
-		return nil, err.New ("Conf data 'dbms.conn_timeout': Value seems invalid.", nil, nil, errA)
+	timeoutK, errK := strconv.Atoi ((*output) ["dbms.conn_timeout"])
+	if errK != nil {
+		return nil, err.New ("Conf data 'dbms.conn_timeout': Value seems invalid.", nil, nil, errK)
 	}
-	if timeoutA == 0 {
+	if timeoutK == 0 {
 		return nil, err.New ("Conf data 'dbms.conn_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
@@ -260,11 +260,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'dbms.write_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["dbms.write_timeout"] = conf.GetString ("dbms.write_timeout")
-	timeoutB, errB := strconv.Atoi ((*output) ["dbms.write_timeout"])
-	if errB != nil {
-		return nil, err.New ("Conf data 'dbms.write_timeout': Value seems invalid.", nil, nil, errB)
+	timeoutL, errL := strconv.Atoi ((*output) ["dbms.write_timeout"])
+	if errL != nil {
+		return nil, err.New ("Conf data 'dbms.write_timeout': Value seems invalid.", nil, nil, errL)
 	}
-	if timeoutB == 0 {
+	if timeoutL == 0 {
 		return nil, err.New ("Conf data 'dbms.write_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
@@ -274,11 +274,11 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'dbms.read_timeout': Data not set.", nil, nil)
 	}
 	(*output) ["dbms.read_timeout"] = conf.GetString ("dbms.read_timeout")
-	timeoutC, errC := strconv.Atoi ((*output) ["dbms.read_timeout"])
-	if errC != nil {
-		return nil, err.New ("Conf data 'dbms.read_timeout': Value seems invalid.", nil, nil, errC)
+	timeoutM, errM := strconv.Atoi ((*output) ["dbms.read_timeout"])
+	if errM != nil {
+		return nil, err.New ("Conf data 'dbms.read_timeout': Value seems invalid.", nil, nil, errM)
 	}
-	if timeoutC == 0 {
+	if timeoutM == 0 {
 		return nil, err.New ("Conf data 'dbms.read_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
