@@ -1,0 +1,24 @@
+# HTTP-server-related data
+http_server:
+  addr: "0.0.0.0"  # Valid ipv4, ipv6, or domain name.
+  port: 0          # Valid port.
+  tls_key: ""      # Valid filepath of HTTP server TLS key. Relative or absolute.
+  tls_crt: ""      # Valid filepath of HTTP server TLS crt. Relative or absolute.
+
+# sds-related data
+sds:
+  addr: "0.0.0.0"  # Valid ipv4, ipv6, or domain name.
+  port: 0          # Valid port.
+  ca_crt_file: ""  # Valid filepath of SDS CA cert file. Relative or absolute.
+  username: ""     # Username of account for updating service addr.
+  pass: ""         # Password of account.
+  service_id: ""   # Service ID.
+  update_pass: ""  # Password for updating service record.
+
+# dbms-related data
+dbms:
+  addr: "0.0.0.0"  # Valid ipv4, ipv6, or domain name.
+  port: 0          # Valid port.
+  ca_crt_file: ""  # Valid filepath of DBMS CA cert file. Relative or absolute.
+  username: ""     # Username of account for using the DBMS.
+  pass: ""         # Passowrd of account.
