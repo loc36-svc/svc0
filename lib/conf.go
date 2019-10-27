@@ -6,6 +6,7 @@ import (
 	viperLib "gopkg.in/qamarian-lib/viper.v0" // v0.1.0
 	"gopkg.in/spf13/afero.v1"
 	"net"
+	"regexp"
 	"strconv"
 )
 
@@ -72,101 +73,213 @@ func Conf_New () (output *Conf, somrErr error) {
 
 
 // Section Y
-	// Processing conf data 'dbms_pub_key'.  ..1.. {	
-	if ! conf.IsSet ("dbms_pub_key") || conf.GetString ("dbms_pub_key") == "" {
-		return nil, err.New ("Conf data 'dbms_pub_key': Data not set.", nil, nil)
+
+	// Processing conf data 'sds.addr'.  ..1.. {
+	if ! conf.IsSet ("sds.addr") {
+		return nil, err.New ("Conf data 'sds.addr': Data not set.", nil, nil)
 	}
-	(*output) ["dbms_pub_key"] = conf.GetString ("dbms_pub_key")
-	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["dbms_pub_key"])
+	(*output) ["sds.addr"] = conf.GetString ("sds.addr")
+	if ! govalidator.IsHost ((*output) ["sds.addr"]) {
+		return nil, err.New ("Conf data 'sds.addr': Invalid hostname.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'sds.port'.  ..1.. {
+	if ! conf.IsSet ("sds.port") {
+		return nil, err.New ("Conf data 'sds.port': Data not set.", nil, nil)
+	}
+	(*output) ["sds.port"] = conf.GetString ("sds.port")
+	portX, okX := strconv.Atoi ((*output) ["sds.port"])
+	if okX != nil || portX > 65535 {
+		return nil, err.New ("Conf data 'sds.port': Invalid port number.", nil, nil)
+	}
+	if portX == 0 {
+		return nil, err.New ("Conf data 'sds.port': Port 0 can not be used.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'sds.ca_crt_file'.  ..1.. {	
+	if ! conf.IsSet ("sds.ca_crt_file") || conf.GetString ("sds.ca_crt_file") == "" {
+		return nil, err.New ("Conf data 'sds.ca_crt_file': Data not set.", nil, nil)
+	}
+	(*output) ["sds.ca_crt_file"] = conf.GetString ("sds.ca_crt_file")
+	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["sds.ca_crt_file"])
 	if  errK != nil {
-		return nil, err.New ("Conf data 'dbms_pub_key': Unable to confirm existence of file.", nil, nil)
+		return nil, err.New ("Conf data 'sds.ca_crt_file': Unable to confirm existence of file.", nil, nil)
 	} else if okK == false {
-		return nil, err.New ("Conf data 'dbms_pub_key': File not found.", nil, nil)
+		return nil, err.New ("Conf data 'sds.ca_crt_file': File not found.", nil, nil)
 	}
 	// .. }
 
-	// Processing conf data 'dbms_addr'.  ..1.. {
-	if ! conf.IsSet ("dbms_addr") {
-		return nil, err.New ("Conf data 'dbms_addr': Data not set.", nil, nil)
+	// Processing conf data 'sds.username'.  ..1.. {
+	if ! conf.IsSet ("sds.username") || conf.GetString ("sds.username") == "" {
+		return nil, err.New ("Conf data 'sds.username': Data not set.", nil, nil)
 	}
-	(*output) ["dbms_addr"] = conf.GetString ("dbms_addr")
-	ipAddrY := net.ParseIP ((*output) ["dbms_addr"])
-	if ipAddrY == nil {
-		return nil, err.New ("Conf data 'dbms_addr': Inalid IPv4/v6 address.", nil, nil)
-	}
+	(*output) ["sds.username"] = conf.GetString ("sds.username")
 	// .. }
 
-	// Processing conf data 'dbms_port'.  ..1.. {
-	if ! conf.IsSet ("dbms_port") {
-		return nil, err.New ("Conf data 'dbms_port': Data not set.", nil, nil)
+	// Processing conf data 'sds.pass'.  ..1.. {
+	if ! conf.IsSet ("sds.pass") || conf.GetString ("sds.pass") == "" {
+		return nil, err.New ("Conf data 'sds.pass': Data not set.", nil, nil)
 	}
-	(*output) ["dbms_port"] = conf.GetString ("dbms_port")
-	portP, errP := strconv.Atoi ((*output) ["dbms_port"])
-	if errP != nil || portP > 65535 {
-		return nil, err.New ("Conf data 'dbms_port': Port number might be invalid.", nil, nil, errP)
-	}
+	(*output) ["sds.pass"] = conf.GetString ("sds.pass")
 	// .. }
 
-	// Processing conf data 'username'.  ..1.. {
-	if ! conf.IsSet ("username") || conf.GetString ("username") == "" {
-		return nil, err.New ("Conf data 'username': Data not set.", nil, nil)
+	// Processing conf data 'sds.conn_timeout'.  ..1.. {
+	if ! conf.IsSet ("sds.conn_timeout") {
+		return nil, err.New ("Conf data 'sds.conn_timeout': Data not set.", nil, nil)
 	}
-	(*output) ["username"] = conf.GetString ("username")
-	// .. }
-
-	// Processing conf data 'pass'.  ..1.. {
-	if ! conf.IsSet ("pass") || conf.GetString ("pass") == "" {
-		return nil, err.New ("Conf data 'pass': Data not set.", nil, nil)
-	}
-	(*output) ["pass"] = conf.GetString ("pass")
-	// .. }
-
-	// Processing conf data 'db'.  ..1.. {
-	if ! conf.IsSet ("db") || conf.GetString ("db") == "" {
-		return nil, err.New ("Conf data 'db': Data not set.", nil, nil)
-	}
-	(*output) ["pass"] = conf.GetString ("db")
-	// .. }
-
-	// Processing conf data 'conn_timeout'.  ..1.. {
-	if ! conf.IsSet ("conn_timeout") {
-		return nil, err.New ("Conf data 'conn_timeout': Data not set.", nil, nil)
-	}
-	(*output) ["conn_timeout"] = conf.GetString ("conn_timeout")
-	timeoutA, errA := strconv.Atoi ((*output) ["conn_timeout"])
+	(*output) ["sds.conn_timeout"] = conf.GetString ("sds.conn_timeout")
+	timeoutA, errA := strconv.Atoi ((*output) ["sds.conn_timeout"])
 	if errA != nil {
-		return nil, err.New ("Conf data 'conn_timeout': Value seems invalid.", nil, nil, errA)
+		return nil, err.New ("Conf data 'sds.conn_timeout': Value seems invalid.", nil, nil, errA)
 	}
 	if timeoutA == 0 {
-		return nil, err.New ("Conf data 'conn_timeout': Timeout can not be zero.", nil, nil)
+		return nil, err.New ("Conf data 'sds.conn_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
 
-	// Processing conf data 'write_timeout'.  ..1.. {
-	if ! conf.IsSet ("write_timeout") {
-		return nil, err.New ("Conf data 'write_timeout': Data not set.", nil, nil)
+	// Processing conf data 'sds.write_timeout'.  ..1.. {
+	if ! conf.IsSet ("sds.write_timeout") {
+		return nil, err.New ("Conf data 'sds.write_timeout': Data not set.", nil, nil)
 	}
-	(*output) ["write_timeout"] = conf.GetString ("write_timeout")
-	timeoutB, errB := strconv.Atoi ((*output) ["write_timeout"])
+	(*output) ["sds.write_timeout"] = conf.GetString ("sds.write_timeout")
+	timeoutB, errB := strconv.Atoi ((*output) ["sds.write_timeout"])
 	if errB != nil {
-		return nil, err.New ("Conf data 'write_timeout': Value seems invalid.", nil, nil, errB)
+		return nil, err.New ("Conf data 'sds.write_timeout': Value seems invalid.", nil, nil, errB)
 	}
 	if timeoutB == 0 {
-		return nil, err.New ("Conf data 'write_timeout': Timeout can not be zero.", nil, nil)
+		return nil, err.New ("Conf data 'sds.write_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
 
-	// Processing conf data 'read_timeout'.  ..1.. {
-	if ! conf.IsSet ("read_timeout") {
-		return nil, err.New ("Conf data 'read_timeout': Data not set.", nil, nil)
+	// Processing conf data 'sds.read_timeout'.  ..1.. {
+	if ! conf.IsSet ("sds.read_timeout") {
+		return nil, err.New ("Conf data 'sds.read_timeout': Data not set.", nil, nil)
 	}
-	(*output) ["read_timeout"] = conf.GetString ("read_timeout")
-	timeoutC, errC := strconv.Atoi ((*output) ["read_timeout"])
+	(*output) ["sds.read_timeout"] = conf.GetString ("sds.read_timeout")
+	timeoutC, errC := strconv.Atoi ((*output) ["sds.read_timeout"])
 	if errC != nil {
-		return nil, err.New ("Conf data 'read_timeout': Value seems invalid.", nil, nil, errC)
+		return nil, err.New ("Conf data 'sds.read_timeout': Value seems invalid.", nil, nil, errC)
 	}
 	if timeoutC == 0 {
-		return nil, err.New ("Conf data 'read_timeout': Timeout can not be zero.", nil, nil)
+		return nil, err.New ("Conf data 'sds.read_timeout': Timeout can not be zero.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'sds.service_id'.  ..1.. {
+	if ! conf.IsSet ("sds.service_id") || conf.GetString ("sds.service_id") == "" {
+		return nil, err.New ("Conf data 'sds.service_id': Data not set.", nil, nil)
+	}
+	(*output) ["sds.service_id"] = conf.GetString ("sds.service_id")
+	if ! serviceIDPattern.Match ([]byte ((*output) ["sds.service_id"])) {
+		return nil, err.New (`Conf data 'sds.service_id': Invalid value, according to the "SDS v0.3.0".`, nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'sds.update_pass'.  ..1.. {
+	if ! conf.IsSet ("sds.update_pass") || conf.GetString ("sds.update_pass") == "" {
+		return nil, err.New ("Conf data 'sds.update_pass': Data not set.", nil, nil)
+	}
+	(*output) ["sds.update_pass"] = conf.GetString ("sds.update_pass")
+	if ! updatePassPattern.Match ([]byte ((*output) ["sds.update_pass"])) {
+		return nil, err.New (`Conf data 'sds.update_pass': Invalid value, according to the "SDS v0.3.0".`, nil, nil)
+	}
+	// .. }
+
+
+// Section Z
+
+	// Processing conf data 'dbms.addr'.  ..1.. {
+	if ! conf.IsSet ("dbms.addr") {
+		return nil, err.New ("Conf data 'dbms.addr': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.addr"] = conf.GetString ("dbms.addr")
+	if ! govalidator.IsHost ((*output) ["dbms.addr"]) {
+		return nil, err.New ("Conf data 'dbms.addr': Invalid hostname.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'dbms.port'.  ..1.. {
+	if ! conf.IsSet ("dbms.port") {
+		return nil, err.New ("Conf data 'dbms.port': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.port"] = conf.GetString ("dbms.port")
+	portX, okX := strconv.Atoi ((*output) ["dbms.port"])
+	if okX != nil || portX > 65535 {
+		return nil, err.New ("Conf data 'dbms.port': Invalid port number.", nil, nil)
+	}
+	if portX == 0 {
+		return nil, err.New ("Conf data 'dbms.port': Port 0 can not be used.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'dbms.ca_crt_file'.  ..1.. {	
+	if ! conf.IsSet ("dbms.ca_crt_file") || conf.GetString ("dbms.ca_crt_file") == "" {
+		return nil, err.New ("Conf data 'dbms.ca_crt_file': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.ca_crt_file"] = conf.GetString ("dbms.ca_crt_file")
+	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["dbms.ca_crt_file"])
+	if  errK != nil {
+		return nil, err.New ("Conf data 'dbms.ca_crt_file': Unable to confirm existence of file.", nil, nil)
+	} else if okK == false {
+		return nil, err.New ("Conf data 'dbms.ca_crt_file': File not found.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'dbms.username'.  ..1.. {
+	if ! conf.IsSet ("dbms.username") || conf.GetString ("dbms.username") == "" {
+		return nil, err.New ("Conf data 'dbms.username': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.username"] = conf.GetString ("dbms.username")
+	// .. }
+
+	// Processing conf data 'dbms.pass'.  ..1.. {
+	if ! conf.IsSet ("dbms.pass") || conf.GetString ("dbms.pass") == "" {
+		return nil, err.New ("Conf data 'dbms.pass': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.pass"] = conf.GetString ("dbms.pass")
+	// .. }
+
+	// Processing conf data 'dbms.conn_timeout'.  ..1.. {
+	if ! conf.IsSet ("dbms.conn_timeout") {
+		return nil, err.New ("Conf data 'dbms.conn_timeout': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.conn_timeout"] = conf.GetString ("dbms.conn_timeout")
+	timeoutA, errA := strconv.Atoi ((*output) ["dbms.conn_timeout"])
+	if errA != nil {
+		return nil, err.New ("Conf data 'dbms.conn_timeout': Value seems invalid.", nil, nil, errA)
+	}
+	if timeoutA == 0 {
+		return nil, err.New ("Conf data 'dbms.conn_timeout': Timeout can not be zero.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'dbms.write_timeout'.  ..1.. {
+	if ! conf.IsSet ("dbms.write_timeout") {
+		return nil, err.New ("Conf data 'dbms.write_timeout': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.write_timeout"] = conf.GetString ("dbms.write_timeout")
+	timeoutB, errB := strconv.Atoi ((*output) ["dbms.write_timeout"])
+	if errB != nil {
+		return nil, err.New ("Conf data 'dbms.write_timeout': Value seems invalid.", nil, nil, errB)
+	}
+	if timeoutB == 0 {
+		return nil, err.New ("Conf data 'dbms.write_timeout': Timeout can not be zero.", nil, nil)
+	}
+	// .. }
+
+	// Processing conf data 'dbms.read_timeout'.  ..1.. {
+	if ! conf.IsSet ("dbms.read_timeout") {
+		return nil, err.New ("Conf data 'dbms.read_timeout': Data not set.", nil, nil)
+	}
+	(*output) ["dbms.read_timeout"] = conf.GetString ("dbms.read_timeout")
+	timeoutC, errC := strconv.Atoi ((*output) ["dbms.read_timeout"])
+	if errC != nil {
+		return nil, err.New ("Conf data 'dbms.read_timeout': Value seems invalid.", nil, nil, errC)
+	}
+	if timeoutC == 0 {
+		return nil, err.New ("Conf data 'dbms.read_timeout': Timeout can not be zero.", nil, nil)
 	}
 	// .. }
 
@@ -181,5 +294,25 @@ func (c *Conf) Get (name string) (string) {
 }
 
 var (
+	serviceIDPattern *regexp.Regexp
+	updatePassPattern *regexp.Regexp
 	confFileName string = "./conf.yml"
 )
+
+func init () {
+	if initReport != nil {
+		return
+	}
+
+	var errX error
+	serviceIDPattern, errX = regexp.Compile ("^[a-z0-9]{1,2}$")
+	if errX != nil {
+		initReport = err.New ("Service ID regexp compilation failed.", nil, nil, serviceIDPattern)
+	}
+
+	var errY error
+	updatePassPattern, errY = regexp.Compile ("^[a-z0-9]{32,32}$")
+		if errX != nil {
+		initReport = err.New (`"Record-update password" regexp compilation failed.`, nil, nil, updatePassPattern)
+	}
+}

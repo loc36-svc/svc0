@@ -12,6 +12,9 @@ sds:
   ca_crt_file: ""  # Valid filepath of SDS CA cert file. Relative or absolute.
   username: ""     # Username of account for updating service addr.
   pass: ""         # Password of account.
+  conn_timeout: 0  # Timeout for connection to SDS.
+  write_timeout: 0 # Timeout for writing to SDS.
+  read_timeout: 0  # Timeout for reading from SDS.
   service_id: ""   # Service ID.
   update_pass: ""  # Password for updating service record.
 
@@ -22,3 +25,7 @@ dbms:
   ca_crt_file: ""  # Valid filepath of DBMS CA cert file. Relative or absolute.
   username: ""     # Username of account for using the DBMS.
   pass: ""         # Passowrd of account.
+  conn_timeout: 0  # Timeout for connection to SDS.
+  write_timeout: 0 # Timeout for writing to SDS.
+  read_timeout: 0  # Timeout for reading from SDS.
+  
