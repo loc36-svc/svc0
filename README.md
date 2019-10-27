@@ -1,2 +1,1 @@
-# svc_0
-Location provider
+# svc_0: Location provider
