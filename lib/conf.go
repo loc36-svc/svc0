@@ -98,16 +98,16 @@ func Conf_New () (output *Conf, somrErr error) {
 	}
 	// .. }
 
-	// Processing conf data 'sds.ca_crt_file'.  ..1.. {	
-	if ! conf.IsSet ("sds.ca_crt_file") || conf.GetString ("sds.ca_crt_file") == "" {
-		return nil, err.New ("Conf data 'sds.ca_crt_file': Data not set.", nil, nil)
+	// Processing conf data 'sds.pub_key_file'.  ..1.. {	
+	if ! conf.IsSet ("sds.pub_key_file") || conf.GetString ("sds.pub_key_file") == "" {
+		return nil, err.New ("Conf data 'sds.pub_key_file': Data not set.", nil, nil)
 	}
-	(*output) ["sds.ca_crt_file"] = conf.GetString ("sds.ca_crt_file")
-	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["sds.ca_crt_file"])
+	(*output) ["sds.pub_key_file"] = conf.GetString ("sds.pub_key_file")
+	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["sds.pub_key_file"])
 	if  errK != nil {
-		return nil, err.New ("Conf data 'sds.ca_crt_file': Unable to confirm existence of file.", nil, nil)
+		return nil, err.New ("Conf data 'sds.pub_key_file': Unable to confirm existence of file.", nil, nil)
 	} else if okK == false {
-		return nil, err.New ("Conf data 'sds.ca_crt_file': File not found.", nil, nil)
+		return nil, err.New ("Conf data 'sds.pub_key_file': File not found.", nil, nil)
 	}
 	// .. }
 
@@ -214,16 +214,16 @@ func Conf_New () (output *Conf, somrErr error) {
 	}
 	// .. }
 
-	// Processing conf data 'dbms.ca_crt_file'.  ..1.. {	
-	if ! conf.IsSet ("dbms.ca_crt_file") || conf.GetString ("dbms.ca_crt_file") == "" {
-		return nil, err.New ("Conf data 'dbms.ca_crt_file': Data not set.", nil, nil)
+	// Processing conf data 'dbms.pub_key_file'.  ..1.. {	
+	if ! conf.IsSet ("dbms.pub_key_file") || conf.GetString ("dbms.pub_key_file") == "" {
+		return nil, err.New ("Conf data 'dbms.pub_key_file': Data not set.", nil, nil)
 	}
-	(*output) ["dbms.ca_crt_file"] = conf.GetString ("dbms.ca_crt_file")
-	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["dbms.ca_crt_file"])
+	(*output) ["dbms.pub_key_file"] = conf.GetString ("dbms.pub_key_file")
+	okK, errK := afero.Exists (afero.NewOsFs (), (*output) ["dbms.pub_key_file"])
 	if  errK != nil {
-		return nil, err.New ("Conf data 'dbms.ca_crt_file': Unable to confirm existence of file.", nil, nil)
+		return nil, err.New ("Conf data 'dbms.pub_key_file': Unable to confirm existence of file.", nil, nil)
 	} else if okK == false {
-		return nil, err.New ("Conf data 'dbms.ca_crt_file': File not found.", nil, nil)
+		return nil, err.New ("Conf data 'dbms.pub_key_file': File not found.", nil, nil)
 	}
 	// .. }
 
