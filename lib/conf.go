@@ -27,7 +27,7 @@ func Conf_New () (output *Conf, somrErr error) {
 	}
 	(*output) ["http_server.addr"] = conf.GetString ("http_server.addr")
 	if ! govalidator.IsIP ((*output) ["http_server.addr"]) {
-		return nil, err.New ("Conf data 'http_server.addr': Invalid IP address.", nil, nil)
+		return nil, err.New ("Conf data 'http_server.addr': Invalid IP v4 or v6 address.", nil, nil)
 	}
 	// .. }
 
