@@ -2,15 +2,95 @@ package reqServer
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"gopkg.in/gorilla/mux.v1"
 	"gopkg.in/qamarian-dtp/err.v0" // v0.4.0
 	"gopkg.in/qamarian-mmp/rxlib.v0" // v0,2.0
+	"net/http"
 	"../../lib"
 )
 
+func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
+	defer func () {
+		panicReason := recover ()
+		if panicReason == nil {
+			return
+		}
+
+		errType, okX := panicReason.(err.Error)
+		//
+	} ()
+
+	// ..1.. {
+	if i, _ := mux.Vars (req)["sID"]; i != serviceID {
+		errX := err.New ("Service requested from the wrong service.", reqDataErr, nil)
+		panic (errX)
+	}
+
+	if v, _ := mux.Vars (req)["sID"]; v != serviceVer {
+		errY := err.New ("Unsupported service version.", reqDataErr, nil)
+		panic (errY)
+	}
+	// ..1.. }
+
+	// ..1.. {
+	errZ := db.Ping ()
+	if errZ != nil {
+		errA := err.New ("Database unreachable.", operationErr, nil, errZ)
+		panic (errA)
+	}
+	// ..1.. }
+
+	// ..1.. {
+	q := `SELECT location_id, name
+		FROM location`
+	r, errB := db.Query (q)
+	if errB != nil {
+		errC := err.New ("Unable to fetch locations from database.", operationErr, nil, errB)
+		panic (errC)
+	}
+	// ..1.. }
+
+	// ..1.. {
+	locations = []struct {ID string, Name string}{}
+	for r.Next () {
+		id := ""; name := ""
+		errD := r.Scan (&id, &name)
+		if errD != nil {
+			errE := err.New ("Unable to fetch a record.", operationErr, nil, errD)
+			panic (errE)
+		}
+		locations = append (locations, struct {ID string, Name string}{id, name})
+	}
+	// ..1.. }
+
+	// ..1.. {
+	jsonData, errF := json.Marshal (locations)
+	if errF != nil {
+		errG := err.New ("Unable to marshal locations data.", operationErr, nil, errF)
+		panic (errG)
+	}
+	output := fmt.Sprinf (responseFormat, 0, "Success!", string (jsonData))
+	res.Write ([]byte (output))
+
+	return
+}
+
 var (
-	rexaKey rxlib.Key
+	serviceID = "0"
+	serviceVer = "v0.1"
+
 	db *sql.DB
+	responseFormat string = `{
+ResponseCode: %d,
+Elaboration: "%s",
+Data: %s`
+
+	reqDataErr = big.NewInt (0)
+	operationErr = big.NewInt (1)
+
+	rexaKey rxlib.Key
 )
 
 func init () {
