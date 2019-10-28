@@ -21,12 +21,20 @@ func init () {
 	}
 }
 
-func AcceptConn (key rxlib.Key) () {
+func AcceptConn (key rxlib.Key) {
 	rexaKey = key
+	key.NowRunning ()
+	defer key.IndicateShutdown ()	
+
+	//
+}
+
+func coordinateServing (req http.Request, res *http.ResponseWriter) {
 	//
 }
 
 var (
+	conf *lib.Conf
 	sdDB *sql.DB
 	rexaKey rxlib.Key
 )
@@ -37,16 +45,18 @@ func init () {
 	}
 
 	// ..1.. {
-	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
-	conf, errY := lib.Conf_New ()
+	var errY error
+	conf, errY = lib.Conf_New ()
 	if errY != nil {
 		initReport = err.New ("Unable to load service configuration.", nil, nil, errY)
 		return
 	}
-	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape ((*conf) ["sds.username"]), url.QueryEscape ((*conf) ["sds.pass"]), url.QueryEscape ((*conf) ["sds.addr"]), url.QueryEscape ((*conf) ["sds.port"]), url.QueryEscape ((*conf) ["sds.pub_key_file"]), url.QueryEscape ((*conf) ["sds.conn_timeout"]), url.QueryEscape ((*conf) ["sds.write_timeout"]), url.QueryEscape ((*conf) ["sds.read_timeout"]))
 	// ..1.. }
 
 	// ..1.. {
+	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
+	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape (conf.Get ("sds.username")), url.QueryEscape (conf.Get ("sds.pass")), url.QueryEscape (conf.Get ("sds.addr")), url.QueryEscape (conf.Get ("sds.port")), url.QueryEscape (conf.Get ("sds.pub_key_file")), url.QueryEscape (conf.Get ("sds.conn_timeout")), url.QueryEscape (conf.Get ("sds.write_timeout")), url.QueryEscape (conf.Get ("sds.read_timeout")))
+	
 	var errZ error
 	sdDB, errZ = sql.Open ("mysql", connURL)
 	if errZ != nil {

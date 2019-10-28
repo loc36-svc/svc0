@@ -24,6 +24,8 @@ func init () {
 }
 
 func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
+	key.NowRunning ()
+	defer key.IndicateShutdown ()	
 	defer func () {
 		// ..1.. {
 		panicReason := recover ()
@@ -59,12 +61,12 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 	} ()
 
 	// ..1.. {
-	if i, _ := mux.Vars (req)["sID"]; i != serviceID {
+	if i, _ := mux.Vars (req)["sID"); i != serviceID {
 		errX := err.New ("Service requested from the wrong service.", reqDataErr, nil)
 		panic (errX)
 	}
 
-	if v, _ := mux.Vars (req)["sID"]; v != serviceVer {
+	if v, _ := mux.Vars (req)["v"); v != serviceVer {
 		errY := err.New ("Unsupported service version.", reqDataErr, nil)
 		panic (errY)
 	}
@@ -141,7 +143,7 @@ func init () {
 		initReport = err.New ("Unable to load service configuration.", nil, nil, errY)
 		return
 	}
-	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape ((*conf) ["dbms.username"]), url.QueryEscape ((*conf) ["dbms.pass"]), url.QueryEscape ((*conf) ["dbms.addr"]), url.QueryEscape ((*conf) ["dbms.port"]), url.QueryEscape ((*conf) ["dbms.pub_key_file"]), url.QueryEscape ((*conf) ["dbms.conn_timeout"]), url.QueryEscape ((*conf) ["dbms.write_timeout"]), url.QueryEscape ((*conf) ["dbms.read_timeout"]))
+	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape (conf.Get ("dbms.username")), url.QueryEscape (conf.Get ("dbms.pass")), url.QueryEscape (conf.Get ("dbms.addr")), url.QueryEscape (conf.Get ("dbms.port")), url.QueryEscape (conf.Get ("dbms.pub_key_file")), url.QueryEscape (conf.Get ("dbms.conn_timeout")), url.QueryEscape (conf.Get ("dbms.write_timeout")), url.QueryEscape (conf.Get ("dbms.read_timeout")))
 	// ..1.. }
 
 	// ..1.. {
