@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gopkg.in/gorilla/mux.v1"
 	"gopkg.in/qamarian-dtp/err.v0" // v0.4.0
+	errLib "gopkg.in/qamarian-lib/err.v0" // v0.4.0
 	"gopkg.in/qamarian-mmp/rxlib.v0" // v0,2.0
 	"net/http"
 	"../../lib"
@@ -13,13 +14,37 @@ import (
 
 func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 	defer func () {
+		// ..1.. {
 		panicReason := recover ()
 		if panicReason == nil {
 			return
 		}
+		// ..1.. }
 
-		errType, okX := panicReason.(err.Error)
-		//
+		errX, okX := panicReason.(err.Error)
+
+		// ..1.. {
+		if okX == false {
+			errMssg := fmt.Sprintf ("Panic occured during operation. [%v]", panicReason)
+			key.Send (errMssg, "log_recorder")
+			output := fmt.Sprintf (responseFormat, 2, "Service error.", "[]")
+			res.Write ([]byte (output))
+			return
+		} else if errX != nil || errX != reqDataErr {
+			errY := err.New ("An error occured while serving request.", nil, nil, errX)
+			errMssg := errLib.Fup (errY)
+			key.Send (errMssg, "log_recorder")
+			output := fmt.Sprintf (responseFormat, 2, "Service error.", "[]")
+			res.Write ([]byte (output))
+			return
+		} else {
+			errZ := err.New ("Error on client side.", nil, nil, errX)
+			errMssg := errLib.Fup (errZ)
+			output := fmt.Sprintf (responseFormat, 1, errMssg, "[]")
+			res.Write ([]byte (output))
+			return
+		}
+		// ..1.. }
 	} ()
 
 	// ..1.. {
