@@ -11,6 +11,16 @@ import (
 	"net/http"
 	"../../lib"
 )
+func init () {
+	if initReport != nil {
+		return
+	}
+
+	if errX := lib.InitReport (); errX != nil {
+		initReport = err.New (`Package "../../lib" init failed.`, nil, nil, errX)
+		return
+	}
+}
 
 func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 	defer func () {
@@ -119,16 +129,9 @@ Data: %s`
 )
 
 func init () {
-	// ..1.. {
 	if initReport != nil {
 		return
 	}
-
-	if errX := lib.InitReport (); errX != nil {
-		initReport = err.New (`Package "../../lib" init failed.`, nil, nil, errX)
-		return
-	}
-	// ..1.. }
 
 	// ..1.. {
 	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
