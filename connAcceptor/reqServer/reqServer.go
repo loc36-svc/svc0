@@ -10,6 +10,7 @@ import (
 	"gopkg.in/qamarian-mmp/rxlib.v0" // v0,2.0
 	"net/http"
 	"../../lib"
+	_ "gopkg.in/go-sql-driver/mysql.v1"
 )
 func init () {
 	if initReport != nil {
@@ -134,7 +135,7 @@ func init () {
 	}
 
 	// ..1.. {
-	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
+	connURLFormat := "%s:%s@tcp(%s:%s)/state?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
 	conf, errY := lib.Conf_New ()
 	if errY != nil {
 		initReport = err.New ("Unable to load service configuration.", nil, nil, errY)
