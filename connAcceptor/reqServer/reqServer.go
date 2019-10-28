@@ -40,7 +40,7 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 			output := fmt.Sprintf (responseFormat, 2, "Service error.", "[]")
 			res.Write ([]byte (output))
 			return
-		} else if errX != nil || errX != reqDataErr {
+		} else if errX.Class () != nil || errX.Class () != reqDataErr {
 			errY := err.New ("An error occured while serving request.", nil, nil, errX)
 			errMssg := errLib.Fup (errY)
 			key.Send (errMssg, "log_recorder")
