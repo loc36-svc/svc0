@@ -2,7 +2,8 @@ package connAcceptor
 
 import (
 	"database/sql"
-	"gopkg.in/qamarian-mmp/rxlib.v0"
+	sdsLib "gopkg.in/loc36_core/sds_lib.v0" // v0.1.0
+	"gopkg.in/qamarian-mmp/rxlib.v0" // v0,2.0
 	"./reqServer"
 	"../lib"
 	_ "gopkg.in/go-sql-driver/mysql.v1"
