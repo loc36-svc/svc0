@@ -26,8 +26,8 @@ func Conf_New () (output *Conf, somrErr error) {
 		return nil, err.New ("Conf data 'http_server.addr': Data not set.", nil, nil)
 	}
 	(*output) ["http_server.addr"] = conf.GetString ("http_server.addr")
-	if ! govalidator.IsHost ((*output) ["http_server.addr"]) {
-		return nil, err.New ("Conf data 'http_server.addr': Invalid hostname.", nil, nil)
+	if ! govalidator.IsIP ((*output) ["http_server.addr"]) {
+		return nil, err.New ("Conf data 'http_server.addr': Invalid IP address.", nil, nil)
 	}
 	// .. }
 
