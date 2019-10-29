@@ -24,9 +24,9 @@ func init () {
 }
 
 func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
-	key.NowRunning ()
-	defer key.IndicateShutdown ()	
 	defer func () {
+		defer func () {recover ()} ()
+
 		// ..1.. {
 		panicReason := recover ()
 		if panicReason == nil {
@@ -34,19 +34,21 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 		}
 		// ..1.. }
 
-		errX, okX := panicReason.(err.Error)
+		errX, okX := panicReason.(*err.Error)
 
 		// ..1.. {
 		if okX == false {
-			errMssg := fmt.Sprintf ("Panic occured during operation. [%v]", panicReason)
-			key.Send (errMssg, "log_recorder")
+			errMssg := fmt.Sprintf ("Panic occured during operation. [%v]",
+				panicReason)
+			key.Send (errMssg, "logRecorder")
 			output := fmt.Sprintf (responseFormat, 2, "Service error.", "[]")
 			res.Write ([]byte (output))
 			return
 		} else if errX.Class () != nil || errX.Class () != reqDataErr {
-			errY := err.New ("An error occured while serving request.", nil, nil, errX)
+			errY := err.New ("An error occured while serving request.", nil,
+				nil, errX)
 			errMssg := errLib.Fup (errY)
-			key.Send (errMssg, "log_recorder")
+			key.Send (errMssg, "logRecorder")
 			output := fmt.Sprintf (responseFormat, 2, "Service error.", "[]")
 			res.Write ([]byte (output))
 			return
@@ -62,7 +64,8 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 
 	// ..1.. {
 	if i, _ := mux.Vars (req)["sID"); i != serviceID {
-		errX := err.New ("Service requested from the wrong service.", reqDataErr, nil)
+		errX := err.New ("Service requested from the wrong service.", reqDataErr,
+			nil)
 		panic (errX)
 	}
 
