@@ -82,6 +82,7 @@ func StartAndAcceptConn (key rxlib.Key) {
 		}
 	// -- |
 
+	// --1-- [
 	server := &http.Server {
 		ReadTimeout: readTimeout,
 		ReadHeaderTimeout: readHeaderTimeout,
@@ -89,11 +90,12 @@ func StartAndAcceptConn (key rxlib.Key) {
 		IdleTimeout: idleTimeout,
 		MaxHeaderBytes: 1 << 12,
 	}
+	server.Handler:= mux.NewRouter ().HandleFunc ("/location", coordinateServing)
+	// --1-- ]
 
-	router := mux.NewRouter ().HandleFunc ("/locHistory", server.ServiceRequestServer)
+	key.NowRunning ()
+	
 }
-
-key.NowRunning ()
 
 func coordinateServing (req http.Request, res *http.ResponseWriter) {
 	defer func () {
