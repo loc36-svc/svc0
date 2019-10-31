@@ -1,10 +1,12 @@
 package connAcceptor
 
 import (
+	"context"
 	"database/sql"
-	sdsLib "gopkg.in/loc36_core/sds_lib.v0" // v0.1.0
+	sdsLib "gopkg.in/loc36_core/sdsLib.v0" // v0.1.0
 	"gopkg.in/qamarian-dtp/err" // v0.4.0
 	errLib "gopkg.in/qamarian-lib/err" // v0.4.0
+	"gopkg.in/qamarian-lib/str.v3"
 	"gopkg.in/qamarian-mmp/rxlib.v0" // v0.2.0
 	"net/http"
 	"math/big"
@@ -29,11 +31,69 @@ func init () {
 
 func StartAndAcceptConn (key rxlib.Key) {
 	rexaKey = key
-	key.NowRunning ()
-	defer key.IndicateShutdown ()	
+	defer func () {
+		defer func () {recover ()} ()
+		key.Send ("")
+	} ()
+	defer key.IndicateShutdown ()
 
-	//
+	// | --
+		port, okX := conf.Get ("http_sever.port")
+		if okX != nil {
+			errMssg := "Start up failed. [Port number seems invalid.]"
+			str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+			key.StartupFailed (errMssg)
+			return
+		}
+		conn, errY := sdDB.Conn (context.Background ())
+		if errY != nil {
+			errZ := err.New ("Unable to get a connection to the SDS.", nil,
+				nil, errY)
+			errMssg := errLib.Fup (errZ)
+			str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+			key.StartupFailed (errMssg)
+			return
+		}	
+	// -- |
+
+	// --1-- [
+	errA := sdsLib.UpdateAddr (conf.Get ("http_sever.addr"), port,
+		conf.Get ("sds.service_id"), conf.Get ("sds.update_pass", conn)
+	if errA != nil {
+		errB := err.New ("Unable to update my address in the SDS.", nil, nil, errA)
+		errMssg := errLib.Fup (errB)
+		str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+		key.StartupFailed (errMssg)
+		return
+	}
+	// --1-- ]
+
+	// | --
+		readTimeout, errC       := time.ParseDuration ("4m")
+		readHeaderTimeout, errD := time.ParseDuration ("4m")
+		writeTimeout, errE      := time.ParseDuration ("4m")
+		idleTimeout, errF       := time.ParseDuration ("4m")
+
+		if errC != nil || errD != nil || errE != nil || errF != nil {
+			errMssg := "Error creating a timeout duration of the HTTP server."
+			str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+			key.StartupFailed (errMssg)
+			return
+		}
+	// -- |
+
+	server := &http.Server {
+		ReadTimeout: readTimeout,
+		ReadHeaderTimeout: readHeaderTimeout,
+		WriteTimeout: writeTimeout,
+		IdleTimeout: idleTimeout,
+		MaxHeaderBytes: 1 << 12,
+	}
+
+	router := mux.NewRouter ().HandleFunc ("/locHistory", server.ServiceRequestServer)
 }
+
+key.NowRunning ()
 
 func coordinateServing (req http.Request, res *http.ResponseWriter) {
 	defer func () {
