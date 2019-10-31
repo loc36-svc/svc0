@@ -88,7 +88,8 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 		FROM location`
 	r, errB := db.Query (q)
 	if errB != nil {
-		errC := err.New ("Unable to fetch locations from database.", operationErr, nil, errB)
+		errC := err.New ("Unable to fetch locations from database.", operationErr,
+			nil, errB)
 		panic (errC)
 	}
 	// ..1.. }
@@ -99,7 +100,8 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 		id := ""; name := ""
 		errD := r.Scan (&id, &name)
 		if errD != nil {
-			errE := err.New ("Unable to fetch a record.", operationErr, nil, errD)
+			errE := err.New ("Unable to fetch a record.", operationErr, nil,
+				errD)
 			panic (errE)
 		}
 		locations = append (locations, struct {ID string, Name string}{id, name})
@@ -109,7 +111,8 @@ func ServeReq (req http.Request, res *http.ResponseWriter, key rxlib.Key) {
 	// ..1.. {
 	jsonData, errF := json.Marshal (locations)
 	if errF != nil {
-		errG := err.New ("Unable to marshal locations data.", operationErr, nil, errF)
+		errG := err.New ("Unable to marshal locations data.", operationErr, nil,
+			errF)
 		panic (errG)
 	}
 	output := fmt.Sprinf (responseFormat, 0, "Success!", string (jsonData))
@@ -140,13 +143,22 @@ func init () {
 	}
 
 	// ..1.. {
-	connURLFormat := "%s:%s@tcp(%s:%s)/state?tls=skip-verify&serverPubKey=%s&timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
+	connURLFormat := "%s:%s@tcp(%s:%s)/state?timeout=%ss&writeTimeout=%ss&" +
+		"readTimeout=%ss&tls=skip-verify"
 	conf, errY := lib.Conf_New ()
 	if errY != nil {
-		initReport = err.New ("Unable to load service configuration.", nil, nil, errY)
+		initReport = err.New ("Unable to load service configuration.", nil, nil,
+			errY)
 		return
 	}
-	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape (conf.Get ("dbms.username")), url.QueryEscape (conf.Get ("dbms.pass")), url.QueryEscape (conf.Get ("dbms.addr")), url.QueryEscape (conf.Get ("dbms.port")), url.QueryEscape (conf.Get ("dbms.pub_key_file")), url.QueryEscape (conf.Get ("dbms.conn_timeout")), url.QueryEscape (conf.Get ("dbms.write_timeout")), url.QueryEscape (conf.Get ("dbms.read_timeout")))
+	connURL := fmt.Sprintf (connURLFormat,
+		url.QueryEscape (conf.Get ("dbms.username")),
+		url.QueryEscape (conf.Get ("dbms.pass")),
+		url.QueryEscape (conf.Get ("dbms.addr")),
+		url.QueryEscape (conf.Get ("dbms.port")),
+		url.QueryEscape (conf.Get ("dbms.conn_timeout")),
+		url.QueryEscape (conf.Get ("dbms.write_timeout")),
+		url.QueryEscape (conf.Get ("dbms.read_timeout")))
 	// ..1.. }
 
 	// ..1.. {

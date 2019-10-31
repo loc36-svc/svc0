@@ -113,13 +113,12 @@ func init () {
 	// ..1.. }
 
 	// ..1.. {
-	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?tls=skip-verify&serverPubKey=%s&" +
-		"timeout=%ss&writeTimeout=%ss&readTimeout=%ss"
+	connURLFormat := "%s:%s@tcp(%s:%s)/service_addr?timeout=%ss&writeTimeout=%ss&" +
+		"readTimeout=%ss&tls=skip-verify"
 	connURL := fmt.Sprintf (connURLFormat, url.QueryEscape (conf.Get ("sds.username")),
 		url.QueryEscape (conf.Get ("sds.pass")),
 		url.QueryEscape (conf.Get ("sds.addr")),
 		url.QueryEscape (conf.Get ("sds.port")),
-		url.QueryEscape (conf.Get ("sds.pub_key_file")),
 		url.QueryEscape (conf.Get ("sds.conn_timeout")),
 		url.QueryEscape (conf.Get ("sds.write_timeout")),
 		url.QueryEscape (conf.Get ("sds.read_timeout")))
