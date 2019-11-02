@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	sdsLib "gopkg.in/loc36_core/sdsLib.v0" // v0.1.0
+	"gopkg.in/qamarian-dtp/cwg" // v0.1.0
 	"gopkg.in/qamarian-dtp/err" // v0.4.0
 	errLib "gopkg.in/qamarian-lib/err" // v0.4.0
 	"gopkg.in/qamarian-lib/str.v3"
 	"gopkg.in/qamarian-mmp/rxlib.v0" // v0.2.0
 	"net/http"
 	"math/big"
+	"os"
 	"sync"
 	"./reqServer"
 	"../lib"
@@ -38,22 +40,22 @@ func StartAndAcceptConn (key rxlib.Key) {
 	defer key.IndicateShutdown ()
 
 	// | --
-		port, okX := conf.Get ("http_sever.port")
-		if okX != nil {
-			errMssg := "Start up failed. [Port number seems invalid.]"
-			str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
-			key.StartupFailed (errMssg)
-			return
-		}
-		conn, errY := sdDB.Conn (context.Background ())
-		if errY != nil {
-			errZ := err.New ("Unable to get a connection to the SDS.", nil,
-				nil, errY)
-			errMssg := errLib.Fup (errZ)
-			str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
-			key.StartupFailed (errMssg)
-			return
-		}	
+	port, okX := conf.Get ("http_sever.port")
+	if okX != nil {
+		errMssg := "Start up failed. [Port number seems invalid.]"
+		str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+		key.StartupFailed (errMssg)
+		return
+	}
+	conn, errY := sdDB.Conn (context.Background ())
+	if errY != nil {
+		errZ := err.New ("Unable to get a connection to the SDS.", nil,
+			nil, errY)
+		errMssg := errLib.Fup (errZ)
+		str.PrintEtr (errMssg, "err", "StartAndAcceptConn ()")
+		key.StartupFailed (errMssg)
+		return
+	}	
 	// -- |
 
 	// --1-- [
@@ -93,9 +95,50 @@ func StartAndAcceptConn (key rxlib.Key) {
 	server.Handler:= mux.NewRouter ().HandleFunc ("/location", coordinateServing)
 	// --1-- ]
 
-	key.NowRunning ()
-	
+	// | --
+	_, proceedWG := cwg.New (1)
+	_, shutdwnWG := cwg.New (1)	
+
+	keyM, _, errM := rexaKey.NewKey ("connAcceptionService")
+	if errM != nil {
+		errN := err.New ("Unable to make Rexa key for connAcceptionService ().",
+			nil, nil, errM)
+		str.PrintEtr (errLib.Fup (errN), "err", "StartAndAcceptConn ()")
+		key.StartupFailed (errLib.Fup (errN))
+		return
+	}
+
+	connAcceptionServiceErr := false
+	// -- |
+
+	// Starting the connection acceptor. --1-- [
+	// connAcceptionService ()
+	go func (s *http.Server, c *lib.Conf, proceedWG, shutdwnWG cwg.PbfCWG,
+	k rxlib.Key) {
+		
+		notfMssg := fmt.Sprintf ("HTTP server addr: [%s]:%s (HTTPS)",
+			c.Get ("http_server.addr"),
+			c.Get ("http_server.port"))
+		str.PrintEtr (notfMssg, "nte", "connAcceptionService ()")
+
+		errX := s.ListenAndServeTLS (c.Get ("http_server.tls_crt"),
+			c.Get ("http_server.tls_key"))
+
+		if errX != nil && errX != nil {
+			errY := err.New ("Conn acceptor shutdown due to an error.", nil,
+				nil, errX)
+			errZ := key.Send (errLib.Fup (errY), "logRecorder")
+			if errZ != nil {
+				errA := err.New (errZ.Error (), nil, nil, errY)
+				errB := err.New ("Unable to send log to the log " +
+					"recorder (logRecorder).", nil, nil, errA)
+				
+		}
+
+	} (server, conf, proceedWG, shutdwnWG)
 }
+
+key.NowRunning ()
 
 func coordinateServing (req http.Request, res *http.ResponseWriter) {
 	defer func () {
