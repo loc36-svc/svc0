@@ -96,49 +96,45 @@ func StartAndAcceptConn (key rxlib.Key) {
 	// --1-- ]
 
 	// | --
-	_, proceedWG := cwg.New (1)
-	_, shutdwnWG := cwg.New (1)	
-
-	keyM, _, errM := rexaKey.NewKey ("connAcceptionService")
-	if errM != nil {
-		errN := err.New ("Unable to make Rexa key for connAcceptionService ().",
-			nil, nil, errM)
-		str.PrintEtr (errLib.Fup (errN), "err", "StartAndAcceptConn ()")
-		key.StartupFailed (errLib.Fup (errN))
-		return
-	}
-
-	connAcceptionServiceErr := false
+	pvf, pbf := cwg.New (1)
+	stillRunning := true
 	// -- |
 
-	// Starting the connection acceptor. --1-- [
-	// connAcceptionService ()
-	go func (s *http.Server, c *lib.Conf, proceedWG, shutdwnWG cwg.PbfCWG,
-	k rxlib.Key) {
+	// --1-- [
+	go func (stillRunning *bool, k rxlib.Key, c *lib.Conf, proceedWG cwg.PbfCWG) {
+		time.Sleep (time.Second * 2)
 		
-		notfMssg := fmt.Sprintf ("HTTP server addr: [%s]:%s (HTTPS)",
-			c.Get ("http_server.addr"),
-			c.Get ("http_server.port"))
-		str.PrintEtr (notfMssg, "nte", "connAcceptionService ()")
+		if stillRunning == true {
+			keyLock.Lock ()
+			key.NowRunning ()
+			keyLock.Unlock ()
 
-		errX := s.ListenAndServeTLS (c.Get ("http_server.tls_crt"),
-			c.Get ("http_server.tls_key"))
+			notfMssg := fmt.Sprintf ("HTTP interface now running: [%s]:%s " +
+				"(HTTPS)", c.Get ("http_server.addr"),
+				c.Get ("http_server.port"))
 
-		if errX != nil && errX != nil {
-			errY := err.New ("Conn acceptor shutdown due to an error.", nil,
-				nil, errX)
-			errZ := key.Send (errLib.Fup (errY), "logRecorder")
-			if errZ != nil {
-				errA := err.New (errZ.Error (), nil, nil, errY)
-				errB := err.New ("Unable to send log to the log " +
-					"recorder (logRecorder).", nil, nil, errA)
-				
+			str.PrintEtr (notfMssg, "std", "StartAndAcceptConn ()")
 		}
 
-	} (server, conf, proceedWG, shutdwnWG)
-}
+		pbf.Done ()
+	} (stillRunning, key, conf, pbf)
+	// --1-- ]
+	
+	errX := s.ListenAndServeTLS (c.Get ("http_server.tls_crt"),
+		c.Get ("http_server.tls_key"))
 
-key.NowRunning ()
+	stillRunning = false
+	pvf.Wait ()
+			
+	if errX != nil && errX != http.ErrServerClosed {
+		errY := err.New ("HTTP interface shutdown, due to an error.", nil, nil,
+			errX)
+		keyLock.Lock ()
+		defer keyLock.Unlock ()
+		key.Send (errLib.Fup (errY), "logRecorder")
+		str.PrintEtr (errLib.Fup (errY), "err", "HTTPInterface ()")
+	}
+}
 
 func coordinateServing (req http.Request, res *http.ResponseWriter) {
 	defer func () {
