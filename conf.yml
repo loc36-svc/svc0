@@ -1,9 +1,9 @@
-# HTTP-server-related data
+# HTTP-interface-related data
 http_server:
   addr: "0.0.0.0"  # Valid ipv4, or ipv6.
   port: 0          # Valid port.
-  tls_key: ""      # Valid filepath of HTTP server TLS key. Relative or absolute.
-  tls_crt: ""      # Valid filepath of HTTP server TLS crt. Relative or absolute.
+  tls_key: ""      # Valid filepath of HTTP interface TLS key. Relative or absolute.
+  tls_crt: ""      # Valid filepath of HTTP interface TLS crt. Relative or absolute.
 
 # sds-related data
 sds:
